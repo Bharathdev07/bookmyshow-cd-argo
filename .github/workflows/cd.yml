@@ -2,7 +2,7 @@ name: ArgoCD Deployment
 
 on:
   workflow_run:
-    workflows: ["Docker Build and Push"]  # Trigger after the Docker build pipeline
+    workflows: ["Docker Build and Push"]  # Trigger after Docker build pipeline
     types:
       - completed
 
@@ -12,24 +12,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout ArgoCD manifests repo
         uses: actions/checkout@v3
+        with:
+          repository: your-org/your-argocd-repo  # Change to your ArgoCD repo
+          token: ${{ secrets.GH_PAT }}  # Use the correct secret
+
+      - name: Download VERSION file from CI
+        uses: actions/download-artifact@v3
+        with:
+          name: version-file
 
       - name: Read version
         id: version
         run: |
-          CURRENT_VERSION=$(cat VERSION)
-          echo "::set-output name=version::$CURRENT_VERSION"
+          VERSION=$(cat VERSION)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Update Kubernetes manifests with new version
         run: |
-          # Replace the image tag in your Kubernetes manifests
-          sed -i "s|bharath415/node:.*|bharath415/node:${{ steps.version.outputs.version }}|g" deployment.yml
+          sed -i "s|bharath415/node:[0-9.]*|bharath415/node:${{ env.VERSION }}|g" deploy.yml
 
       - name: Commit updated manifests
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add deployment.yml
-          git commit -m "Update image tag to ${{ steps.version.outputs.version }}"
-          git push
+          git add deploy.yml svc.yml
+          git commit -m "Update image tag to ${{ env.VERSION }}"
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git HEAD:master
