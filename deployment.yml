@@ -2,8 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: node-app
+  labels:
+    app: node-app
 spec:
-  replicas: 3
+  replicas: 2  # Number of pods
   selector:
     matchLabels:
       app: node-app
@@ -14,6 +16,24 @@ spec:
     spec:
       containers:
         - name: node-app
-          image: bharath415/node:5  # Updated to use the fixed tag
+          image: bharath415/node:latest  # This will be updated dynamically
           ports:
             - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: PORT
+              value: "3000"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: node-app-service
+spec:
+  selector:
+    app: node-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: NodePort  # Change to LoadBalancer if needed
