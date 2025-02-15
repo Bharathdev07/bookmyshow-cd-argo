@@ -5,6 +5,7 @@ on:
     workflows: ["Docker Build and Push"]  # Trigger after Docker build pipeline
     types:
       - completed
+  workflow_dispatch:
 
 jobs:
   deploy:
