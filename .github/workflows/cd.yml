@@ -2,23 +2,23 @@ name: ArgoCD Deployment
 
 on:
   workflow_run:
-    workflows: ["Docker Build and Push"]  # Ensure this matches your CI workflow name
+    workflows: ["Docker Build and Push"]  # Ensure CI workflow name matches
     types:
       - completed
-  workflow_dispatch:  # Allow manual execution
+  workflow_dispatch:  # Allows manual trigger
 
 jobs:
   deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}  # Run only if CI succeeds
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'  # Run on success or manual trigger
 
     steps:
       - name: Checkout ArgoCD manifests repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
-          repository: your-org/your-argocd-repo  # Change to your ArgoCD repo
-          ref: master  # Checkout master branch
-          token: ${{ secrets.GH_PAT }}  # Ensure you have the correct token
+          repository: Bharathdev07/bookmyshow-cd-argo  # Correct repo name
+          ref: master  # Ensure it checks out master branch
+          token: ${{ secrets.GH_PAT }}  # Use correct GitHub token secret
 
       - name: Download VERSION file from CI
         uses: actions/download-artifact@v4
@@ -41,5 +41,5 @@ jobs:
           git config --global user.email "actions@github.com"
           git checkout master  # Ensure working on master branch
           git add deploy.yml svc.yml
-          git commit -m "Update image tag to ${{ env.VERSION }}" || echo "No changes to commit"
-          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/your-org/your-argocd-repo.git HEAD:master
+          git commit -m "Update image tag to ${{ env.VERSION }}"
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/Bharathdev07/bookmyshow-cd-argo.git HEAD:master
