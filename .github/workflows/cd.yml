@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Bharathdev07/bookmyshow-cd-argo  # ✅ Fixed repo name
-          ref: main  # ✅ Check if "main" or "master"
+          ref: master  # ✅ Check if "main" or "master"
           token: ${{ secrets.GH_PAT }}  # ✅ Ensure GH_PAT has correct permissions
 
       - name: Debug - Check Git Branch
