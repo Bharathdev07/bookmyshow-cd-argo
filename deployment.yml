@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: node-app
-          image: bharath415/node:latest  # This will be updated dynamically
+          image: bharath415/node:5  # This will be updated dynamically
           ports:
             - containerPort: 3000
           env:
